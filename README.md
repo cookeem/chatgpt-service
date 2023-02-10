@@ -30,9 +30,14 @@ appKey: "xxxxxx"
 
 
 # 使用docker启动服务
-docker-compose up -d
+docker-compose ps   
+     Name                    Command               State                  Ports                
+-----------------------------------------------------------------------------------------------
+chatgpt-service   /chatgpt-service/chatgpt-s ...   Up      0.0.0.0:59142->9000/tcp             
+chatgpt-stream    /docker-entrypoint.sh ngin ...   Up      0.0.0.0:3000->80/tcp,:::3000->80/tcp
 
-# 访问页面
+
+# 访问页面，请保证你的服务器可以访问chatGPT的api接口
 # http://localhost:3000
 ```
 
