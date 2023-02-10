@@ -1,0 +1,22 @@
+version: "3"
+services:
+  chatgpt-stream:
+    image: "doryengine/chatgpt-stream:v1.0.0"
+    hostname: chatgpt-stream
+    container_name: chatgpt-stream
+    ports:
+      - "3000:80"
+      # - "443:443"
+    depends_on:
+      - chatgpt-service
+    restart: always
+  chatgpt-service:
+    image: "doryengine/chatgpt-service:v1.0.0-alpine"
+    hostname: chatgpt-service
+    container_name: chatgpt-service
+    ports:
+      - "9000"
+    volumes:
+      - ./config.yaml:/chatgpt-service/config.yaml
+    command: /chatgpt-service/chatgpt-service
+    restart: always

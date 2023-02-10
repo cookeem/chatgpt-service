@@ -1,0 +1,10 @@
+# openai的appKey
+appKey: "xxxxxx"
+# 服务端口
+port: 9000
+# 问题发送的时间间隔不能小于多长时间，单位：秒
+intervalSeconds: 5
+# 返回答案的最大长度
+maxLength: 1500
+# 是否允许cors跨域
+cors: true
