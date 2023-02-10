@@ -7,6 +7,11 @@
 - chatGPT-stream: [https://github.com/cookeem/chatgpt-stream](https://github.com/cookeem/chatgpt-stream) 
   - chatGPT-stream是一个前端服务，以websocket的方式实时接收chatGPT-service返回的消息
 
+## gitee传送门
+
+- [https://gitee.com/cookeem/chatgpt-service](https://gitee.com/cookeem/chatgpt-service) 
+- [https://gitee.com/cookeem/chatgpt-stream](https://gitee.com/cookeem/chatgpt-stream) 
+
 ## 效果图
 
 ![](chatgpt-service.gif)
