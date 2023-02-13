@@ -6,5 +6,4 @@ type Config struct {
 	IntervalSeconds int    `yaml:"intervalSeconds" json:"intervalSeconds" bson:"intervalSeconds" validate:"required"`
 	MaxLength       int    `yaml:"maxLength" json:"maxLength" bson:"maxLength" validate:"required"`
 	Cors            bool   `yaml:"cors" json:"cors" bson:"cors" validate:""`
-	TimeoutSeconds  int    `yaml:"timeoutSeconds" json:"timeoutSeconds" bson:"timeoutSeconds" validate:"required"`
 }

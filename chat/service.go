@@ -96,7 +96,6 @@ func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) 
 func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *sync.Mutex, requestMsg string) {
 	var err error
 	var strResp string
-	var end bool
 	req := gogpt.CompletionRequest{
 		Model:            gogpt.GPT3TextDavinci003,
 		MaxTokens:        api.Config.MaxLength,
@@ -109,23 +108,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 		PresencePenalty:  0.1,
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*time.Duration(api.Config.TimeoutSeconds))
-	defer func() {
-		if !end {
-			err = fmt.Errorf("[ERROR] context timeout")
-			chatMsg := Message{
-				Kind:       "error",
-				Msg:        err.Error(),
-				MsgId:      uuid.New().String(),
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-			api.Logger.LogError(err.Error())
-		}
-		cancel()
-	}()
+	ctx := context.Background()
 
 	stream, err := cli.CreateCompletionStream(ctx, req)
 	if err != nil {
@@ -142,53 +125,53 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 		api.Logger.LogError(err.Error())
 		return
 	}
-	defer stream.Close()
+	defer func() {
+		stream.Close()
+	}()
 
 	id := uuid.New().String()
 	var i int
 	for {
 		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
-			end = true
-			var s string
-			var kind string
-			if i == 0 {
-				s = "[ERROR] NO RESPONSE, PLEASE RETRY"
-				kind = "retry"
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				var s string
+				var kind string
+				if i == 0 {
+					s = "[ERROR] NO RESPONSE, PLEASE RETRY"
+					kind = "retry"
+				} else {
+					s = "\n\n###### [END] ######"
+					kind = "chat"
+				}
+				chatMsg := Message{
+					Kind:       kind,
+					Msg:        s,
+					MsgId:      id,
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+				if kind == "retry" {
+					api.Logger.LogError(s)
+				}
+				break
 			} else {
-				s = "\n\n###### [END] ######"
-				kind = "chat"
+				err = fmt.Errorf("[ERROR] receive chatGPT stream error: %s", err.Error())
+				chatMsg := Message{
+					Kind:       "error",
+					Msg:        err.Error(),
+					MsgId:      uuid.New().String(),
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+				api.Logger.LogError(err.Error())
+				break
 			}
-			chatMsg := Message{
-				Kind:       kind,
-				Msg:        s,
-				MsgId:      id,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-			if kind == "retry" {
-				api.Logger.LogError(s)
-			}
-			break
-		} else if err != nil {
-			end = true
-			err = fmt.Errorf("[ERROR] receive chatGPT stream error: %s", err.Error())
-			chatMsg := Message{
-				Kind:       "error",
-				Msg:        err.Error(),
-				MsgId:      id,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-			api.Logger.LogError(err.Error())
-			break
-		}
-
-		if len(response.Choices) > 0 {
+		} else if len(response.Choices) > 0 {
 			var s string
 			if i == 0 {
 				s = fmt.Sprintf(`%s# %s`, s, requestMsg)
