@@ -4,15 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"net/http"
+	"runtime"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	gogpt "github.com/sashabaranov/go-gpt3"
-	"io"
-	"net/http"
-	"strings"
-	"sync"
-	"time"
 )
 
 type Api struct {
@@ -164,7 +166,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 			_ = conn.WriteJSON(chatMsg)
 			mutex.Unlock()
 			api.Logger.LogError(err.Error())
-			return
+			break
 		}
 
 		if len(response.Choices) > 0 {
@@ -189,8 +191,9 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 		i = i + 1
 	}
 	if strResp != "" {
-		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s%s", requestMsg, strResp))
+		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s", strResp))
 	}
+	runtime.GC()
 }
 
 func (api *Api) WsChat(c *gin.Context) {
