@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -108,7 +107,9 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 		PresencePenalty:  0.1,
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*time.Duration(api.Config.TimeoutSeconds)))
+	defer cancel()
+
 	stream, err := cli.CreateCompletionStream(ctx, req)
 	if err != nil {
 		err = fmt.Errorf("[ERROR] create chatGPT stream error: %s", err.Error())
@@ -153,8 +154,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 				api.Logger.LogError(s)
 			}
 			break
-		}
-		if err != nil {
+		} else if err != nil {
 			err = fmt.Errorf("[ERROR] receive chatGPT stream error: %s", err.Error())
 			chatMsg := Message{
 				Kind:       "error",
@@ -193,7 +193,6 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 	if strResp != "" {
 		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s", strResp))
 	}
-	runtime.GC()
 }
 
 func (api *Api) WsChat(c *gin.Context) {
