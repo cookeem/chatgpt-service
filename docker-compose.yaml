@@ -15,7 +15,7 @@ services:
     hostname: chatgpt-service
     container_name: chatgpt-service
     ports:
-      - "9000"
+      - "9000:9000"
     volumes:
       - ./config.yaml:/chatgpt-service/config.yaml
     command: /chatgpt-service/chatgpt-service
