@@ -331,7 +331,17 @@ func (api *Api) WsChat(c *gin.Context) {
 		case websocket.PingMessage:
 			api.Logger.LogInfo("[PING] websocket receive ping message")
 		default:
-			api.Logger.LogError("websocket receive message type error")
+			err = fmt.Errorf("websocket receive message type not text")
+			chatMsg := Message{
+				Kind:       "error",
+				Msg:        err.Error(),
+				MsgId:      uuid.New().String(),
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			mutex.Lock()
+			_ = conn.WriteJSON(chatMsg)
+			mutex.Unlock()
+			api.Logger.LogError("websocket receive message type not text")
 			return
 		}
 	}
