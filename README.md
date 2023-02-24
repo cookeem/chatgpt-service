@@ -34,7 +34,10 @@ vi config.yaml
 appKey: "xxxxxx"
 
 
-# 使用docker启动服务
+# 使用docker-compose启动服务
+docker-compose up -d
+
+# 查看服务状态
 docker-compose ps   
      Name                    Command               State                  Ports                
 -----------------------------------------------------------------------------------------------
