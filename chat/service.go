@@ -78,8 +78,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 	var err error
 	var strResp string
 	req := gogpt.CompletionRequest{
-		Model: gogpt.GPT3TextDavinci003,
-		// Model:            "gpt-3.5-turbo",
+		Model:            gogpt.GPT3Dot5Turbo0301,
 		MaxTokens:        api.Config.MaxLength,
 		Temperature:      0.6,
 		Prompt:           requestMsg,
