@@ -2,9 +2,7 @@ package chat
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"sync"
@@ -80,7 +78,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 	req := gogpt.ChatCompletionRequest{
 		Model:       gogpt.GPT3Dot5Turbo0301,
 		MaxTokens:   api.Config.MaxLength,
-		Temperature: 0.6,
+		Temperature: 1.0,
 		Messages: []gogpt.ChatCompletionMessage{
 			{
 				Role:    "user",
@@ -88,7 +86,6 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 			},
 		},
 		Stream:           true,
-		Stop:             []string{"\n\n\n"},
 		TopP:             1,
 		FrequencyPenalty: 0.1,
 		PresencePenalty:  0.1,
@@ -117,7 +114,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 	var i int
 	for {
 		response, err := stream.Recv()
-		if errors.Is(err, io.EOF) {
+		if err != nil {
 			var s string
 			var kind string
 			if i == 0 {
@@ -136,22 +133,6 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 			mutex.Lock()
 			_ = conn.WriteJSON(chatMsg)
 			mutex.Unlock()
-			if kind == "retry" {
-				api.Logger.LogError(s)
-			}
-			break
-		} else if err != nil {
-			err = fmt.Errorf("[ERROR] receive chatGPT stream error: %s", err.Error())
-			chatMsg := Message{
-				Kind:       "error",
-				Msg:        err.Error(),
-				MsgId:      id,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-			api.Logger.LogError(err.Error())
 			break
 		}
 
@@ -177,7 +158,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 		i = i + 1
 	}
 	if strResp != "" {
-		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s", strResp))
+		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s\n", strResp))
 	}
 }
 

@@ -1,4 +1,4 @@
-# 实时ChatGPT服务
+# 实时ChatGPT服务，基于最新的gpt-3.5-turbo-0301模型
 
 ## chatGPT-service和chatGPT-stream
 

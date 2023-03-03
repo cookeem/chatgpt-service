@@ -1,7 +1,7 @@
 version: "3"
 services:
   chatgpt-stream:
-    image: "doryengine/chatgpt-stream:v1.0.0"
+    image: "doryengine/chatgpt-stream:v1.0.1"
     hostname: chatgpt-stream
     container_name: chatgpt-stream
     ports:
@@ -11,7 +11,7 @@ services:
       - chatgpt-service
     restart: always
   chatgpt-service:
-    image: "doryengine/chatgpt-service:v1.0.0-alpine"
+    image: "doryengine/chatgpt-service:v1.0.1-alpine"
     hostname: chatgpt-service
     container_name: chatgpt-service
     ports:
