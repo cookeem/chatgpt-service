@@ -77,11 +77,16 @@ func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) 
 func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *sync.Mutex, requestMsg string) {
 	var err error
 	var strResp string
-	req := gogpt.CompletionRequest{
-		Model:            gogpt.GPT3Dot5Turbo0301,
-		MaxTokens:        api.Config.MaxLength,
-		Temperature:      0.6,
-		Prompt:           requestMsg,
+	req := gogpt.ChatCompletionRequest{
+		Model:       gogpt.GPT3Dot5Turbo0301,
+		MaxTokens:   api.Config.MaxLength,
+		Temperature: 0.6,
+		Messages: []gogpt.ChatCompletionMessage{
+			{
+				Role:    "user",
+				Content: requestMsg,
+			},
+		},
 		Stream:           true,
 		Stop:             []string{"\n\n\n"},
 		TopP:             1,
@@ -91,7 +96,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 
 	ctx := context.Background()
 
-	stream, err := cli.CreateCompletionStream(ctx, req)
+	stream, err := cli.CreateChatCompletionStream(ctx, req)
 	if err != nil {
 		err = fmt.Errorf("[ERROR] create chatGPT stream error: %s", err.Error())
 		chatMsg := Message{
@@ -156,7 +161,7 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *gogpt.Client, mutex *s
 				s = fmt.Sprintf(`%s# %s`, s, requestMsg)
 			}
 			for _, choice := range response.Choices {
-				s = s + choice.Text
+				s = s + choice.Delta.Content
 			}
 			strResp = strResp + s
 			chatMsg := Message{
