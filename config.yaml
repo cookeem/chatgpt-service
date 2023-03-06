@@ -1,11 +1,15 @@
-# openai的appKey
+# Your openai.com API key
+# openai的API Key
 appKey: "xxxxxx"
+# Service port
 # 服务端口
 port: 9000
+# The time interval for sending questions cannot be less than how long, unit: second
 # 问题发送的时间间隔不能小于多长时间，单位：秒
 intervalSeconds: 5
+# The maximum length of the returned answer
 # 返回答案的最大长度
 maxLength: 2000
+# Whether to allow cors cross-domain
 # 是否允许cors跨域
 cors: true
-
