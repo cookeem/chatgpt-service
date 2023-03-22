@@ -77,7 +77,7 @@ func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) 
 func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *sync.Mutex, requestMsg string) {
 	var err error
 	var strResp string
-	model := openai.GPT40314
+	model := openai.GPT3Dot5Turbo0301
 	req := openai.ChatCompletionRequest{
 		Model:       model,
 		MaxTokens:   api.Config.MaxLength,
