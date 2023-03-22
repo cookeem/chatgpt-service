@@ -52,6 +52,9 @@ chatgpt-stream    /docker-entrypoint.sh ngin ...   Up      0.0.0.0:3000->80/tcp,
 # http://localhost:3000
 ```
 
+- 直接输入问题，则调用ChatGPT接口返回答案
+- `/image `后边输入想要的图片描述，则调用DALL-E2接口，通过图片描述自动生成图片
+
 ## 如何编译
 
 ```bash

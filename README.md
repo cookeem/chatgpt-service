@@ -52,6 +52,9 @@ chatgpt-stream    /docker-entrypoint.sh ngin ...   Up      0.0.0.0:3000->80/tcp,
 # http://localhost:3000
 ```
 
+- Enter the question directly, it will call the ChatGPT interface to return the answer
+- Enter the picture description after `/image`, it will call the DALL-E2 interface to automatically generate pictures through the picture description
+
 ## How to build
 
 ```bash
