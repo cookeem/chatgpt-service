@@ -2,11 +2,11 @@ FROM alpine:3.15.3
 
 LABEL maintainer="cookeem"
 LABEL email="cookeem@qq.com"
-LABEL version="v1.0.1"
+LABEL version="v1.0.2"
 
 RUN adduser -h /chatgpt-service -u 1000 -D dory
 COPY chatgpt-service /chatgpt-service/
 WORKDIR /chatgpt-service
 USER dory
 
-# docker build -t doryengine/chatgpt-service:v1.0.1-alpine .
+# docker build -t doryengine/chatgpt-service:v1.0.2-alpine .

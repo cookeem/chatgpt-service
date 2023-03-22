@@ -31,10 +31,10 @@ cd chatgpt-service
 # chatGPT的注册教程: https://www.cnblogs.com/damugua/p/16969508.html
 # chatGPT的APIkey管理界面: https://beta.openai.com/account/api-keys
 
-# 修改config.yaml配置文件，修改appKey，改为你的openai.com的appKey
+# 修改config.yaml配置文件，修改apiKey，改为你的openai.com的apiKey
 vi config.yaml
-# openai的appKey，改为你的apiKey
-appKey: "xxxxxx"
+# openai的apiKey，改为你的apiKey
+apiKey: "xxxxxx"
 
 
 # 使用docker-compose启动服务

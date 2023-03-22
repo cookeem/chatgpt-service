@@ -27,8 +27,19 @@ func main() {
 		logger.LogError(err.Error())
 		return
 	}
-	if config.AppKey == "" {
-		logger.LogError(fmt.Sprintf("appKey is empty"))
+	if config.ApiKey == "" {
+		logger.LogError(fmt.Sprintf("apiKey is empty"))
+		return
+	}
+	var found bool
+	for _, model := range chat.GPTModels {
+		if model == config.Model {
+			found = true
+			break
+		}
+	}
+	if !found {
+		logger.LogError(fmt.Sprintf("model not exists"))
 		return
 	}
 

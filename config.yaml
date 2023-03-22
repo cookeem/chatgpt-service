@@ -1,12 +1,17 @@
 # Your openai.com API key
 # openai的API Key
-appKey: "xxxxxx"
+apiKey: "xxxxxx"
 # Service port
 # 服务端口
 port: 9000
 # The time interval for sending questions cannot be less than how long, unit: second
 # 问题发送的时间间隔不能小于多长时间，单位：秒
 intervalSeconds: 5
+# GPT model, if you use the GPT4 model, please ensure that the corresponding openai account has the permission to use the GPT4 model
+# Available models include: gpt-4-32k-0314, gpt-4-32k, gpt-4-0314, gpt-4, gpt-3.5-turbo-0301, gpt-3.5-turbo, text-davinci-003, text-davinci-002, text-curie-001, text-babbage-001, text-ada-001, text-davinci-001, davinci-instruct-beta, davinci, curie-instruct-beta, curie, ada, babbage
+# GPT模型，如果使用GPT4模型，请保证对应的openai账号有GPT4模型的使用权限
+# 可用的模型包括: gpt-4-32k-0314, gpt-4-32k, gpt-4-0314, gpt-4, gpt-3.5-turbo-0301, gpt-3.5-turbo, text-davinci-003, text-davinci-002, text-curie-001, text-babbage-001, text-ada-001, text-davinci-001, davinci-instruct-beta, davinci, curie-instruct-beta, curie, ada, babbage
+model: gpt-3.5-turbo-0301
 # The maximum length of the returned answer
 # 返回答案的最大长度
 maxLength: 2000

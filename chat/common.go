@@ -1,6 +1,7 @@
 package chat
 
 import (
+	"github.com/sashabaranov/go-openai"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"time"
@@ -41,6 +42,29 @@ func (logger Logger) LogPanic(args ...interface{}) {
 const (
 	StatusFail string = "FAIL"
 
-	pingPeriod = time.Second * 50
-	pingWait   = time.Second * 60
+	PingPeriod = time.Second * 50
+	PingWait   = time.Second * 60
+)
+
+var (
+	GPTModels = []string{
+		openai.GPT432K0314,
+		openai.GPT432K,
+		openai.GPT40314,
+		openai.GPT4,
+		openai.GPT3Dot5Turbo0301,
+		openai.GPT3Dot5Turbo,
+		openai.GPT3TextDavinci003,
+		openai.GPT3TextDavinci002,
+		openai.GPT3TextCurie001,
+		openai.GPT3TextBabbage001,
+		openai.GPT3TextAda001,
+		openai.GPT3TextDavinci001,
+		openai.GPT3DavinciInstructBeta,
+		openai.GPT3Davinci,
+		openai.GPT3CurieInstructBeta,
+		openai.GPT3Curie,
+		openai.GPT3Ada,
+		openai.GPT3Babbage,
+	}
 )

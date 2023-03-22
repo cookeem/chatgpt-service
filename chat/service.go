@@ -48,7 +48,7 @@ func (api *Api) responseFunc(c *gin.Context, startTime time.Time, status, msg st
 
 func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) {
 	var err error
-	ticker := time.NewTicker(pingPeriod)
+	ticker := time.NewTicker(PingPeriod)
 
 	var mutex = &sync.Mutex{}
 
@@ -59,7 +59,7 @@ func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) 
 	for {
 		select {
 		case <-ticker.C:
-			conn.SetWriteDeadline(time.Now().Add(pingWait))
+			conn.SetWriteDeadline(time.Now().Add(PingWait))
 			mutex.Lock()
 			err = conn.WriteMessage(websocket.PingMessage, nil)
 			if err != nil {
@@ -77,96 +77,188 @@ func (api *Api) wsPingMsg(conn *websocket.Conn, chClose, chIsCloseSet chan int) 
 func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *sync.Mutex, requestMsg string) {
 	var err error
 	var strResp string
-	model := openai.GPT3Dot5Turbo0301
-	req := openai.ChatCompletionRequest{
-		Model:       model,
-		MaxTokens:   api.Config.MaxLength,
-		Temperature: 1.0,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: requestMsg,
-			},
-		},
-		Stream:           true,
-		TopP:             1,
-		FrequencyPenalty: 0.1,
-		PresencePenalty:  0.1,
-	}
 
 	ctx := context.Background()
 
-	stream, err := cli.CreateChatCompletionStream(ctx, req)
-	if err != nil {
-		err = fmt.Errorf("[ERROR] create chatGPT stream model=%s error: %s", model, err.Error())
-		chatMsg := Message{
-			Kind:       "error",
-			Msg:        err.Error(),
-			MsgId:      uuid.New().String(),
-			CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+	switch api.Config.Model {
+	case openai.GPT3Dot5Turbo0301, openai.GPT3Dot5Turbo, openai.GPT4, openai.GPT40314, openai.GPT432K0314, openai.GPT432K:
+		req := openai.ChatCompletionRequest{
+			Model:       api.Config.Model,
+			MaxTokens:   api.Config.MaxLength,
+			Temperature: 1.0,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    openai.ChatMessageRoleUser,
+					Content: requestMsg,
+				},
+			},
+			Stream:           true,
+			TopP:             1,
+			FrequencyPenalty: 0.1,
+			PresencePenalty:  0.1,
 		}
-		mutex.Lock()
-		_ = conn.WriteJSON(chatMsg)
-		mutex.Unlock()
+
+		stream, err := cli.CreateChatCompletionStream(ctx, req)
+		if err != nil {
+			err = fmt.Errorf("[ERROR] create chatGPT stream model=%s error: %s", api.Config.Model, err.Error())
+			chatMsg := Message{
+				Kind:       "error",
+				Msg:        err.Error(),
+				MsgId:      uuid.New().String(),
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			mutex.Lock()
+			_ = conn.WriteJSON(chatMsg)
+			mutex.Unlock()
+			api.Logger.LogError(err.Error())
+			return
+		}
+		defer stream.Close()
+
+		id := uuid.New().String()
+		var i int
+		for {
+			response, err := stream.Recv()
+			if err != nil {
+				var s string
+				var kind string
+				if errors.Is(err, io.EOF) {
+					if i == 0 {
+						s = "[ERROR] NO RESPONSE, PLEASE RETRY"
+						kind = "retry"
+					} else {
+						s = "\n\n###### [END] ######"
+						kind = "chat"
+					}
+				} else {
+					s = fmt.Sprintf("[ERROR] %s", err.Error())
+					kind = "error"
+				}
+				chatMsg := Message{
+					Kind:       kind,
+					Msg:        s,
+					MsgId:      id,
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+				break
+			}
+
+			if len(response.Choices) > 0 {
+				var s string
+				if i == 0 {
+					s = fmt.Sprintf(`%s# %s`, s, requestMsg)
+				}
+				for _, choice := range response.Choices {
+					s = s + choice.Delta.Content
+				}
+				strResp = strResp + s
+				chatMsg := Message{
+					Kind:       "chat",
+					Msg:        s,
+					MsgId:      id,
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+			}
+			i = i + 1
+		}
+		if strResp != "" {
+			api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s\n", strResp))
+		}
+	case openai.GPT3TextDavinci003, openai.GPT3TextDavinci002, openai.GPT3TextCurie001, openai.GPT3TextBabbage001, openai.GPT3TextAda001, openai.GPT3TextDavinci001, openai.GPT3DavinciInstructBeta, openai.GPT3Davinci, openai.GPT3CurieInstructBeta, openai.GPT3Curie, openai.GPT3Ada, openai.GPT3Babbage:
+		req := openai.CompletionRequest{
+			Model:       api.Config.Model,
+			MaxTokens:   api.Config.MaxLength,
+			Temperature: 0.6,
+			Prompt:      requestMsg,
+			Stream:      true,
+			//Stop:             []string{"\n\n\n"},
+			TopP:             1,
+			FrequencyPenalty: 0.1,
+			PresencePenalty:  0.1,
+		}
+
+		stream, err := cli.CreateCompletionStream(ctx, req)
+		if err != nil {
+			err = fmt.Errorf("[ERROR] create chatGPT stream model=%s error: %s", api.Config.Model, err.Error())
+			chatMsg := Message{
+				Kind:       "error",
+				Msg:        err.Error(),
+				MsgId:      uuid.New().String(),
+				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+			}
+			mutex.Lock()
+			_ = conn.WriteJSON(chatMsg)
+			mutex.Unlock()
+			api.Logger.LogError(err.Error())
+			return
+		}
+		defer stream.Close()
+
+		id := uuid.New().String()
+		var i int
+		for {
+			response, err := stream.Recv()
+			if err != nil {
+				var s string
+				var kind string
+				if errors.Is(err, io.EOF) {
+					if i == 0 {
+						s = "[ERROR] NO RESPONSE, PLEASE RETRY"
+						kind = "retry"
+					} else {
+						s = "\n\n###### [END] ######"
+						kind = "chat"
+					}
+				} else {
+					s = fmt.Sprintf("[ERROR] %s", err.Error())
+					kind = "error"
+				}
+				chatMsg := Message{
+					Kind:       kind,
+					Msg:        s,
+					MsgId:      id,
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+				break
+			}
+
+			if len(response.Choices) > 0 {
+				var s string
+				if i == 0 {
+					s = fmt.Sprintf(`%s# %s`, s, requestMsg)
+				}
+				for _, choice := range response.Choices {
+					s = s + choice.Text
+				}
+				strResp = strResp + s
+				chatMsg := Message{
+					Kind:       "chat",
+					Msg:        s,
+					MsgId:      id,
+					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+				}
+				mutex.Lock()
+				_ = conn.WriteJSON(chatMsg)
+				mutex.Unlock()
+			}
+			i = i + 1
+		}
+		if strResp != "" {
+			api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s\n", strResp))
+		}
+	default:
+		err = fmt.Errorf("model not exists")
 		api.Logger.LogError(err.Error())
 		return
-	}
-	defer stream.Close()
-
-	id := uuid.New().String()
-	var i int
-	for {
-		response, err := stream.Recv()
-		if err != nil {
-			var s string
-			var kind string
-			if errors.Is(err, io.EOF) {
-				if i == 0 {
-					s = "[ERROR] NO RESPONSE, PLEASE RETRY"
-					kind = "retry"
-				} else {
-					s = "\n\n###### [END] ######"
-					kind = "chat"
-				}
-			} else {
-				s = fmt.Sprintf("[ERROR] %s", err.Error())
-				kind = "error"
-			}
-			chatMsg := Message{
-				Kind:       kind,
-				Msg:        s,
-				MsgId:      id,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-			break
-		}
-
-		if len(response.Choices) > 0 {
-			var s string
-			if i == 0 {
-				s = fmt.Sprintf(`%s# %s`, s, requestMsg)
-			}
-			for _, choice := range response.Choices {
-				s = s + choice.Delta.Content
-			}
-			strResp = strResp + s
-			chatMsg := Message{
-				Kind:       "chat",
-				Msg:        s,
-				MsgId:      id,
-				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
-			}
-			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
-			mutex.Unlock()
-		}
-		i = i + 1
-	}
-	if strResp != "" {
-		api.Logger.LogInfo(fmt.Sprintf("[RESPONSE] %s\n", strResp))
 	}
 }
 
@@ -196,9 +288,9 @@ func (api *Api) WsChat(c *gin.Context) {
 		_ = conn.Close()
 	}()
 
-	_ = conn.SetReadDeadline(time.Now().Add(pingWait))
+	_ = conn.SetReadDeadline(time.Now().Add(PingWait))
 	conn.SetPongHandler(func(s string) error {
-		_ = conn.SetReadDeadline(time.Now().Add(pingWait))
+		_ = conn.SetReadDeadline(time.Now().Add(PingWait))
 		return nil
 	})
 
@@ -220,7 +312,7 @@ func (api *Api) WsChat(c *gin.Context) {
 	}()
 
 	api.Logger.LogInfo(fmt.Sprintf("websocket connection open"))
-	cli := openai.NewClient(api.Config.AppKey)
+	cli := openai.NewClient(api.Config.ApiKey)
 
 	var latestRequestTime time.Time
 	for {
@@ -290,10 +382,10 @@ func (api *Api) WsChat(c *gin.Context) {
 			isClosed = true
 			api.Logger.LogInfo("[CLOSED] websocket receive closed message")
 		case websocket.PingMessage:
-			_ = conn.SetReadDeadline(time.Now().Add(pingWait))
+			_ = conn.SetReadDeadline(time.Now().Add(PingWait))
 			api.Logger.LogInfo("[PING] websocket receive ping message")
 		case websocket.PongMessage:
-			_ = conn.SetReadDeadline(time.Now().Add(pingWait))
+			_ = conn.SetReadDeadline(time.Now().Add(PingWait))
 			api.Logger.LogInfo("[PONG] websocket receive pong message")
 		default:
 			err = fmt.Errorf("[ERROR] websocket receive message type not text")

@@ -31,10 +31,10 @@ cd chatgpt-service
 # ChatGPT registration tutorial: https://www.cnblogs.com/damugua/p/16969508.html
 # ChatGPT API key management page: https://beta.openai.com/account/api-keys
 
-# Modify the config.yaml configuration file, modify the appKey, and change it to your openai.com API key
+# Modify the config.yaml configuration file, modify the apiKey, and change it to your openai.com API key
 vi config.yaml
 #  your openai.com API key
-appKey: "xxxxxx"
+apiKey: "xxxxxx"
 
 
 # Start the service with docker-compose
