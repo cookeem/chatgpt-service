@@ -1,4 +1,4 @@
-# Real-time ChatGPT service, support GPT3/GPt4
+# Real-time ChatGPT service, support GPT3/GPT4
 
 - [English README](README.md)
 - [中文 README](README_CN.md)
