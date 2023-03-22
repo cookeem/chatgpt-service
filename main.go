@@ -56,6 +56,7 @@ func main() {
 	}
 
 	groupApi := r.Group("/api")
+	groupApi.Static("/assets", "assets")
 	groupWs := groupApi.Group("/ws")
 	groupWs.GET("chat", api.WsChat)
 

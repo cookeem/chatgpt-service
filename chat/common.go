@@ -1,8 +1,10 @@
 package chat
 
 import (
+	"fmt"
 	"github.com/sashabaranov/go-openai"
 	log "github.com/sirupsen/logrus"
+	"math/rand"
 	"os"
 	"time"
 )
@@ -37,6 +39,22 @@ func (logger Logger) LogError(args ...interface{}) {
 
 func (logger Logger) LogPanic(args ...interface{}) {
 	log.Panic(args...)
+}
+
+func RandomString(n int) string {
+	var letter []rune
+	lowerChars := "abcdefghijklmnopqrstuvwxyz"
+	numberChars := "0123456789"
+	chars := fmt.Sprintf("%s%s", lowerChars, numberChars)
+	letter = []rune(chars)
+	var str string
+	b := make([]rune, n)
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := range b {
+		b[i] = letter[seededRand.Intn(len(letter))]
+	}
+	str = string(b)
+	return str
 }
 
 const (
