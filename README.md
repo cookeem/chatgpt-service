@@ -1,4 +1,4 @@
-# Real-time ChatGPT service, based on the latest gpt-3.5-turbo-0301 model
+# Real-time ChatGPT service, support GPT3/GPt4
 
 - [English README](README.md)
 - [中文 README](README_CN.md)

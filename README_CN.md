@@ -1,4 +1,4 @@
-# 实时ChatGPT服务，基于最新的gpt-3.5-turbo-0301模型
+# 实时ChatGPT服务，支持GPT3/GPT4
 
 - [English README](README.md)
 - [中文 README](README_CN.md)
