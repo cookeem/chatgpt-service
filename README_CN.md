@@ -1,4 +1,4 @@
-# 实时ChatGPT服务，支持GPT3/GPT4
+# 实时ChatGPT服务，支持GPT3/GPT4，支持对话和通过句子生成图片
 
 - [English README](README.md)
 - [中文 README](README_CN.md)
@@ -17,8 +17,13 @@
 
 ## 效果图
 
+- 实时对话模式
+
 ![](chatgpt-service.gif)
 
+- 通过句子生成图片模式
+
+![](chatgpt-image.jpeg)
 
 ## 快速开始
 

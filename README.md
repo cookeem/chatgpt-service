@@ -1,4 +1,4 @@
-# Real-time ChatGPT service, support GPT3/GPT4
+# Real-time ChatGPT service, support GPT3/GPT4, support conversation and generate pictures from sentences
 
 - [English README](README.md)
 - [中文 README](README_CN.md)
@@ -17,8 +17,13 @@
 
 ## Demo
 
+- Real-time conversation mode
+
 ![](chatgpt-service.gif)
 
+- Generate picture patterns from sentences
+
+![](chatgpt-image.jpeg)
 
 ## Quick start
 
