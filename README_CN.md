@@ -41,6 +41,9 @@ vi config.yaml
 # openai的apiKey，改为你的apiKey
 apiKey: "xxxxxx"
 
+# 创建生成的图片目录
+mkdir -p assets
+chown -R 1000:1000 assets
 
 # 使用docker-compose启动服务
 docker-compose up -d

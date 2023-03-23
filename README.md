@@ -41,6 +41,9 @@ vi config.yaml
 #  your openai.com API key
 apiKey: "xxxxxx"
 
+# create pictures directory
+mkdir -p assets
+chown -R 1000:1000 assets
 
 # Start the service with docker-compose
 docker-compose up -d
