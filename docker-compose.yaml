@@ -18,5 +18,6 @@ services:
       - "9000:9000"
     volumes:
       - ./config.yaml:/chatgpt-service/config.yaml
+      - ./assets:/chatgpt-service/assets
     command: /chatgpt-service/chatgpt-service
     restart: always
