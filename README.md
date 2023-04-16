@@ -69,6 +69,8 @@ chatgpt-stream    /docker-entrypoint.sh ngin ...   Up      0.0.0.0:3000->80/tcp,
 # Pull build dependencies
 go mod tidy
 # Compile the project
+# If you want to build this GO project in Conda, please run *conda install -c anaconda gcc_linux-64* in your Conda env before *go build*
+# conda install -c anaconda gcc_linux-64
 go build
 
 # Run the service
