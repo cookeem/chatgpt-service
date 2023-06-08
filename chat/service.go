@@ -106,7 +106,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 			}
 			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
+			err = conn.WriteJSON(chatMsg)
+			if err != nil {
+				return
+			}
 			mutex.Unlock()
 			api.Logger.LogError(err.Error())
 			return
@@ -139,7 +142,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 				}
 				mutex.Lock()
-				_ = conn.WriteJSON(chatMsg)
+				err = conn.WriteJSON(chatMsg)
+				if err != nil {
+					return
+				}
 				mutex.Unlock()
 				break
 			}
@@ -160,7 +166,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 				}
 				mutex.Lock()
-				_ = conn.WriteJSON(chatMsg)
+				err = conn.WriteJSON(chatMsg)
+				if err != nil {
+					return
+				}
 				mutex.Unlock()
 			}
 			i = i + 1
@@ -192,7 +201,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 			}
 			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
+			err = conn.WriteJSON(chatMsg)
+			if err != nil {
+				return
+			}
 			mutex.Unlock()
 			api.Logger.LogError(err.Error())
 			return
@@ -225,7 +237,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 				}
 				mutex.Lock()
-				_ = conn.WriteJSON(chatMsg)
+				err = conn.WriteJSON(chatMsg)
+				if err != nil {
+					return
+				}
 				mutex.Unlock()
 				break
 			}
@@ -246,7 +261,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 					CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 				}
 				mutex.Lock()
-				_ = conn.WriteJSON(chatMsg)
+				err = conn.WriteJSON(chatMsg)
+				if err != nil {
+					return
+				}
 				mutex.Unlock()
 			}
 			i = i + 1
@@ -283,7 +301,10 @@ func (api *Api) GetImageMessage(conn *websocket.Conn, cli *openai.Client, mutex 
 			CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 		}
 		mutex.Lock()
-		_ = conn.WriteJSON(chatMsg)
+		err = conn.WriteJSON(chatMsg)
+		if err != nil {
+			return
+		}
 		mutex.Unlock()
 		api.Logger.LogError(err.Error())
 	}
@@ -332,7 +353,10 @@ func (api *Api) GetImageMessage(conn *websocket.Conn, cli *openai.Client, mutex 
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 	}
 	mutex.Lock()
-	_ = conn.WriteJSON(chatMsg)
+	err = conn.WriteJSON(chatMsg)
+	if err != nil {
+		return
+	}
 	mutex.Unlock()
 	api.Logger.LogInfo(fmt.Sprintf("[IMAGE] # %s\n%s", requestMsg, msg))
 	return
@@ -422,7 +446,10 @@ func (api *Api) WsChat(c *gin.Context) {
 						CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 					}
 					mutex.Lock()
-					_ = conn.WriteJSON(chatMsg)
+					err = conn.WriteJSON(chatMsg)
+					if err != nil {
+						return
+					}
 					mutex.Unlock()
 					api.Logger.LogError(err.Error())
 				} else {
@@ -440,7 +467,10 @@ func (api *Api) WsChat(c *gin.Context) {
 						CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 					}
 					mutex.Lock()
-					_ = conn.WriteJSON(chatMsg)
+					err = conn.WriteJSON(chatMsg)
+					if err != nil {
+						return
+					}
 					mutex.Unlock()
 					api.Logger.LogError(err.Error())
 				} else {
@@ -452,7 +482,10 @@ func (api *Api) WsChat(c *gin.Context) {
 							CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 						}
 						mutex.Lock()
-						_ = conn.WriteJSON(chatMsg)
+						err = conn.WriteJSON(chatMsg)
+						if err != nil {
+							return
+						}
 						mutex.Unlock()
 						go api.GetImageMessage(conn, cli, mutex, requestMsg)
 					} else {
@@ -463,7 +496,10 @@ func (api *Api) WsChat(c *gin.Context) {
 							CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 						}
 						mutex.Lock()
-						_ = conn.WriteJSON(chatMsg)
+						err = conn.WriteJSON(chatMsg)
+						if err != nil {
+							return
+						}
 						mutex.Unlock()
 						reqMsgs = append(reqMsgs, openai.ChatCompletionMessage{
 							Role:    openai.ChatMessageRoleUser,
@@ -491,7 +527,10 @@ func (api *Api) WsChat(c *gin.Context) {
 				CreateTime: time.Now().Format("2006-01-02 15:04:05"),
 			}
 			mutex.Lock()
-			_ = conn.WriteJSON(chatMsg)
+			err = conn.WriteJSON(chatMsg)
+			if err != nil {
+				return
+			}
 			mutex.Unlock()
 			api.Logger.LogError(err.Error())
 			return
