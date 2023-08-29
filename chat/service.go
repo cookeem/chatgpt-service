@@ -108,10 +108,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 			mutex.Lock()
 			err = conn.WriteJSON(chatMsg)
 			if err != nil {
+				api.Logger.LogError(err.Error())
 				return
 			}
 			mutex.Unlock()
-			api.Logger.LogError(err.Error())
 			return
 		}
 		defer stream.Close()
@@ -203,10 +203,10 @@ func (api *Api) GetChatMessage(conn *websocket.Conn, cli *openai.Client, mutex *
 			mutex.Lock()
 			err = conn.WriteJSON(chatMsg)
 			if err != nil {
+				api.Logger.LogError(err.Error())
 				return
 			}
 			mutex.Unlock()
-			api.Logger.LogError(err.Error())
 			return
 		}
 		defer stream.Close()
@@ -303,10 +303,10 @@ func (api *Api) GetImageMessage(conn *websocket.Conn, cli *openai.Client, mutex 
 		mutex.Lock()
 		err = conn.WriteJSON(chatMsg)
 		if err != nil {
+			api.Logger.LogError(err.Error())
 			return
 		}
 		mutex.Unlock()
-		api.Logger.LogError(err.Error())
 	}
 
 	resp, err := cli.CreateImage(ctx, req)
@@ -448,10 +448,10 @@ func (api *Api) WsChat(c *gin.Context) {
 					mutex.Lock()
 					err = conn.WriteJSON(chatMsg)
 					if err != nil {
+						api.Logger.LogError(err.Error())
 						return
 					}
 					mutex.Unlock()
-					api.Logger.LogError(err.Error())
 				} else {
 					ok = true
 					latestRequestTime = time.Now()
@@ -469,10 +469,10 @@ func (api *Api) WsChat(c *gin.Context) {
 					mutex.Lock()
 					err = conn.WriteJSON(chatMsg)
 					if err != nil {
+						api.Logger.LogError(err.Error())
 						return
 					}
 					mutex.Unlock()
-					api.Logger.LogError(err.Error())
 				} else {
 					if strings.HasPrefix(requestMsg, "/image ") {
 						chatMsg := Message{
@@ -529,10 +529,10 @@ func (api *Api) WsChat(c *gin.Context) {
 			mutex.Lock()
 			err = conn.WriteJSON(chatMsg)
 			if err != nil {
+				api.Logger.LogError(err.Error())
 				return
 			}
 			mutex.Unlock()
-			api.Logger.LogError(err.Error())
 			return
 		}
 	}
